@@ -12,7 +12,7 @@ struct Person {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), reqwest::Error>  {
     let client = reqwest::Client::new();
 
     // Get information on current user?    
@@ -20,14 +20,13 @@ async fn main() {
         .basic_auth(access_token::get_access_token(), Some("api_token"))
         .header(CONTENT_TYPE, "application/json")
         .send()
-        .await
-        .unwrap()
+        .await?
         .json()
-        .await
-        .unwrap();
+        .await?;
 
-    print!("{:?}", response)
+    print!("{:#?}", response);
 
+    Ok(())
 
     // Different behaviours depending on response status.
     // TODO: Implement cases for all status code responses according to Toggl API reference: https://developers.track.toggl.com/docs/#generic-responses
