@@ -85,6 +85,7 @@ struct TimeEntry {
 }
 
 #[tokio::main]
+
 async fn main() -> Result<(), reqwest::Error>  {
     let client = reqwest::Client::new();
 
