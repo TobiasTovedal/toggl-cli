@@ -1,4 +1,4 @@
-use reqwest::header::CONTENT_TYPE;
+use reqwest::{header::CONTENT_TYPE, Client};
 use serde::{Deserialize, Serialize};
 
 extern crate tokio;
@@ -122,23 +122,7 @@ async fn main() -> Result<(), reqwest::Error>  {
         workspace_id: 1127770,
     };
 
-    // Serialize the TimeEntryRequest instance to a JSON string
-    let time_entry_json = serde_json::to_string_pretty(&time_entry).unwrap();
-    println!("{:#?}", time_entry_json);
-
-
-    // Post time entry
-    // TODO: Update json payload
-    let time_entry_response: TimeEntryResponse = client.post("https://api.track.toggl.com/api/v9/workspaces/1127770/time_entries")
-        .basic_auth(access_token::get_access_token(), Some("api_token"))
-        .header(CONTENT_TYPE, "application/json")
-        .body(time_entry_json)
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    println!("{:#?}", time_entry_response);
+    let result = add_time_entry(time_entry, client).await;
 
     Ok(())
 
@@ -162,6 +146,27 @@ async fn main() -> Result<(), reqwest::Error>  {
             println!("oh god, no");
         }
     }
-    */
-    
+    */   
+}
+
+async fn add_time_entry(time_entry: TimeEntryRequest, client: Client) -> Result<(), reqwest::Error> {
+    // Serialize the TimeEntryRequest instance to a JSON string
+    let time_entry_json = serde_json::to_string_pretty(&time_entry).unwrap();
+    println!("{:#?}", time_entry_json);
+
+
+    // Post time entry
+    // TODO: Update json payload
+    let time_entry_response: TimeEntryResponse = client.post("https://api.track.toggl.com/api/v9/workspaces/1127770/time_entries")
+        .basic_auth(access_token::get_access_token(), Some("api_token"))
+        .header(CONTENT_TYPE, "application/json")
+        .body(time_entry_json)
+        .send()
+        .await?
+        .json()
+        .await?;
+
+    println!("{:#?}", time_entry_response);
+
+    Ok(())
 }
