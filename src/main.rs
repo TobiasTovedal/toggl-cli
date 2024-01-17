@@ -47,7 +47,7 @@ struct TimeEntryResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct TimeEntry {
+struct TimeEntryRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     billable: Option<bool>,
     created_with: String,
@@ -101,7 +101,7 @@ async fn main() -> Result<(), reqwest::Error>  {
     println!("{:#?}", response);
 
     // Create an instance of the TimeEntry struct with optional fields set to None
-    let time_entry = TimeEntry {
+    let time_entry = TimeEntryRequest {
         billable: None,
         created_with: "MyApp".to_string(),
         description: None,
@@ -124,8 +124,8 @@ async fn main() -> Result<(), reqwest::Error>  {
     };
 
     // Serialize the TimeEntryRequest instance to a JSON string
-    let json_string = serde_json::to_string_pretty(&time_entry).unwrap();
-    println!("{:#?}", json_string);
+    let time_entry_json = serde_json::to_string_pretty(&time_entry).unwrap();
+    println!("{:#?}", time_entry_json);
 
 
     // Post time entry
@@ -133,7 +133,7 @@ async fn main() -> Result<(), reqwest::Error>  {
     let time_entry_response: TimeEntryResponse = client.post("https://api.track.toggl.com/api/v9/workspaces/1127770/time_entries")
         .basic_auth(access_token::get_access_token(), Some("api_token"))
         .header(CONTENT_TYPE, "application/json")
-        .body(json_string)
+        .body(time_entry_json)
         .send()
         .await?
         .json()
