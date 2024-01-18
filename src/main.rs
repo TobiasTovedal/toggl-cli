@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 extern crate tokio;
 extern crate serde_json;
-mod access_token;
+mod config;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Person {
@@ -90,7 +90,7 @@ async fn main() -> Result<(), reqwest::Error>  {
 
     // Get information on current user?    
     let response: Person = client.get("https://api.track.toggl.com/api/v9/me")
-        .basic_auth(access_token::get_access_token(), Some("api_token"))
+        .basic_auth(config::API_KEY, Some("api_token"))
         .header(CONTENT_TYPE, "application/json")
         .send()
         .await?
@@ -122,7 +122,7 @@ async fn main() -> Result<(), reqwest::Error>  {
         workspace_id: 1127770,
     };
 
-    let result = add_time_entry(time_entry, client).await;
+    let _result = add_time_entry(time_entry, client).await;
 
     Ok(())
 
@@ -158,7 +158,7 @@ async fn add_time_entry(time_entry: TimeEntryRequest, client: Client) -> Result<
     // Post time entry
     // TODO: Update json payload
     let time_entry_response: TimeEntryResponse = client.post("https://api.track.toggl.com/api/v9/workspaces/1127770/time_entries")
-        .basic_auth(access_token::get_access_token(), Some("api_token"))
+        .basic_auth(config::API_KEY, Some("api_token"))
         .header(CONTENT_TYPE, "application/json")
         .body(time_entry_json)
         .send()
