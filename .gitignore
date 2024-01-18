@@ -1,4 +1,5 @@
 src/access_token.rs
+src/config.rs
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,rust
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,visualstudiocode,rust
