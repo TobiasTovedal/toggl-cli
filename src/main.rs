@@ -89,7 +89,7 @@ async fn main() -> Result<(), reqwest::Error>  {
     let client = reqwest::Client::new();
 
     // Get information on current user?    
-    let response: Person = client.get("https://api.track.toggl.com/api/v9/me")
+    let response: Person = client.get(config::TOGGL_URL_ME)
         .basic_auth(config::API_KEY, Some("api_token"))
         .header(CONTENT_TYPE, "application/json")
         .send()
@@ -157,7 +157,7 @@ async fn add_time_entry(time_entry: TimeEntryRequest, client: Client) -> Result<
 
     // Post time entry
     // TODO: Update json payload
-    let time_entry_response: TimeEntryResponse = client.post("https://api.track.toggl.com/api/v9/workspaces/1127770/time_entries")
+    let time_entry_response: TimeEntryResponse = client.post(config::TOGGL_URL_TIME_ENTRIES)
         .basic_auth(config::API_KEY, Some("api_token"))
         .header(CONTENT_TYPE, "application/json")
         .body(time_entry_json)
