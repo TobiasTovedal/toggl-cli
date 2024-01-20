@@ -1,11 +1,17 @@
-use serde::{Deserialize, Serialize};
-
 extern crate tokio;
 extern crate serde_json;
 mod config;
 mod toggl_api;
-
+use serde::{Deserialize, Serialize};
 use toggl_api::{TogglApiWrapper, TimeEntryRequest};
+use clap::Parser;
+
+#[derive(Parser)]
+struct Cli {
+    project: String,
+    duration: i64,
+    description: String,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Person {
@@ -50,6 +56,9 @@ struct TimeEntryResponse {
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error>  {
+    let args = Cli::parse();
+    println!("{}, {}, {}", args.project, args.duration, args.description);
+
     let toggl_api = TogglApiWrapper::new();
 
     // Get information on current user?
