@@ -1,9 +1,11 @@
-use reqwest::{header::CONTENT_TYPE, Client};
 use serde::{Deserialize, Serialize};
 
 extern crate tokio;
 extern crate serde_json;
 mod config;
+mod toggl_api;
+
+use toggl_api::{TogglApiWrapper, TimeEntryRequest};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Person {
@@ -46,56 +48,12 @@ struct TimeEntryResponse {
     workspace_id: i64,  // Workspace ID
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct TimeEntryRequest {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    billable: Option<bool>,
-    created_with: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
-    duration: i64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    duronly: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pid: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    project_id: Option<i64>,
-    start: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    start_date: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    stop: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    tag_action: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    tag_ids: Option<Vec<i64>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    tags: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    task_id: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    tid: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    uid: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    user_id: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    wid: Option<i64>,
-    workspace_id: i64,
-}
-
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error>  {
-    let client = reqwest::Client::new();
+    let toggl_api = TogglApiWrapper::new();
 
-    // Get information on current user?    
-    let response: Person = client.get(config::TOGGL_URL_ME)
-        .basic_auth(config::API_KEY, Some("api_token"))
-        .header(CONTENT_TYPE, "application/json")
-        .send()
-        .await?
-        .json()
-        .await?;
+    // Get information on current user?
+    let response = toggl_api.get_user_info().await?;
 
     println!("{:#?}", response);
 
@@ -122,51 +80,8 @@ async fn main() -> Result<(), reqwest::Error>  {
         workspace_id: 1127770,
     };
 
-    let _result = add_time_entry(time_entry, client).await;
+    let result = toggl_api.add_time_entry(time_entry).await;
+    println!("{:#?}", result);
 
-    Ok(())
-
-    // Different behaviours depending on response status.
-    // TODO: Implement cases for all status code responses according to Toggl API reference: https://developers.track.toggl.com/docs/#generic-responses
-    /* 
-    match response.status() {
-        reqwest::StatusCode::OK => {
-            println!("ok {:?}", response.);
-        }
-        reqwest::StatusCode::FORBIDDEN => {
-            println!("forbidden");
-        }
-        reqwest::StatusCode::NOT_FOUND => {
-            println!("not found");
-        }
-        reqwest::StatusCode::INTERNAL_SERVER_ERROR => {
-            println!("internal server error");
-        }
-        _ => {
-            println!("oh god, no");
-        }
-    }
-    */   
-}
-
-async fn add_time_entry(time_entry: TimeEntryRequest, client: Client) -> Result<(), reqwest::Error> {
-    // Serialize the TimeEntryRequest instance to a JSON string
-    let time_entry_json = serde_json::to_string_pretty(&time_entry).unwrap();
-    println!("{:#?}", time_entry_json);
-
-
-    // Post time entry
-    // TODO: Update json payload
-    let time_entry_response: TimeEntryResponse = client.post(config::TOGGL_URL_TIME_ENTRIES)
-        .basic_auth(config::API_KEY, Some("api_token"))
-        .header(CONTENT_TYPE, "application/json")
-        .body(time_entry_json)
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    println!("{:#?}", time_entry_response);
-
-    Ok(())
+    Ok(())  
 }

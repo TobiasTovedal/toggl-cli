@@ -46,39 +46,39 @@ pub struct TimeEntryResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TimeEntryRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
-    billable: Option<bool>,
-    created_with: String,
+    pub billable: Option<bool>,
+    pub created_with: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
-    duration: i64,
+    pub description: Option<String>,
+    pub duration: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
-    duronly: Option<bool>,
+    pub duronly: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pid: Option<i64>,
+    pub pid: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    project_id: Option<i64>,
-    start: String,
+    pub project_id: Option<i64>,
+    pub start: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    start_date: Option<String>,
+    pub start_date: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    stop: Option<String>,
+    pub stop: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    tag_action: Option<String>,
+    pub tag_action: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    tag_ids: Option<Vec<i64>>,
+    pub tag_ids: Option<Vec<i64>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    tags: Option<Vec<String>>,
+    pub tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    task_id: Option<i64>,
+    pub task_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    tid: Option<i64>,
+    pub tid: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    uid: Option<i64>,
+    pub uid: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    user_id: Option<i64>,
+    pub user_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    wid: Option<i64>,
-    workspace_id: i64,
+    pub wid: Option<i64>,
+    pub workspace_id: i64,
 }
 
 pub struct TogglApiWrapper {
@@ -92,7 +92,7 @@ impl TogglApiWrapper {
     }
 
     pub async fn get_user_info(&self) -> Result<Person, reqwest::Error> {
-        let response: Person = client.get(config::TOGGL_URL_ME)
+        let response: Person = self.client.get(config::TOGGL_URL_ME)
         .basic_auth(config::API_KEY, Some("api_token"))
         .header(CONTENT_TYPE, "application/json")
         .send()
@@ -100,26 +100,23 @@ impl TogglApiWrapper {
         .json()
         .await?;
 
-        OK(response)
+        Ok(response)
     }
 
     pub async fn add_time_entry(&self, time_entry: TimeEntryRequest) -> Result<TimeEntryResponse, reqwest::Error> {
         // Serialize the TimeEntryRequest instance to a JSON string
-        let time_entry_json = serde_json::to_string(&time_entry)?;
+        let time_entry_json = serde_json::to_string(&time_entry);
 
-        // Post time entry
         let time_entry_response: TimeEntryResponse = self.client
             .post(config::TOGGL_URL_TIME_ENTRIES)
             .basic_auth(config::API_KEY, Some("api_token"))
             .header(CONTENT_TYPE, "application/json")
-            .body(time_entry_json)
+            .body(time_entry_json.unwrap())
             .send()
             .await?
             .json()
             .await?;
 
-        Ok(time_entry_response)
+        Ok(time_entry_response)   
     }
-
-    // Other functions for Toggl API calls will be added here
 }
