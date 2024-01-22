@@ -2,6 +2,8 @@ extern crate tokio;
 extern crate serde_json;
 mod config;
 mod toggl_api;
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use toggl_api::{TogglApiWrapper, TimeEntryRequest};
 use clap::Parser;
@@ -55,9 +57,9 @@ struct TimeEntryResponse {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), reqwest::Error>  {
+async fn main() -> Result<(), reqwest::Error> {
     let args = Cli::parse();
-    println!("{}, {}, {}", args.project, args.duration, args.description);
+    let projects = HashMap::from(config::PROJECTS);
 
     let toggl_api = TogglApiWrapper::new();
 
