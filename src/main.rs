@@ -83,7 +83,7 @@ fn create_time_entry(project_id: &i32, duration: i32, description: &str) -> Time
     // Create an instance of the TimeEntry struct with optional fields set to None
     let time_entry = TimeEntryRequest {
         billable: None,
-        created_with: "MyApp".to_string(),
+        created_with: "Tobias toggl-cli".to_string(),
         description: None,
         duration: -1,
         duronly: None,
