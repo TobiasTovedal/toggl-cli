@@ -2,7 +2,7 @@
 
 CLI for [Toggl time track](https://toggl.com/track/). To simplify my life since I am unfortunately required to time track some projects.
 
-The only possible action is to add an entry with description to a project for a predefined duration starting _now_.
+The only possible action is to add an entry with description to a project for a duration starting _now_.
 
 Accepts input on format `<PROJECT> <DURATION_IN_MINUTES> <DESCRIPTION>`. For example
 
