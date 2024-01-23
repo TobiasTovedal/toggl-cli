@@ -56,7 +56,7 @@ pub struct TimeEntryRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pid: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub project_id: Option<i64>,
+    pub project_id: Option<i32>,
     pub start: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub start_date: Option<String>,

@@ -11,7 +11,7 @@ use clap::Parser;
 #[derive(Parser)]
 struct Cli {
     project: String,
-    duration: i64,
+    duration: i32,
     description: String,
 }
 
@@ -58,16 +58,28 @@ struct TimeEntryResponse {
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
+    // Parse input arguments
     let args = Cli::parse();
+
+    // Greate hashmap from array of projects and corresponding IDs
     let projects = HashMap::from(config::PROJECTS);
+    
+    // TODO: make better use of the cargo crate
+    // If the project provided as argument exists, return it's id from hashmap
+    match projects.get(args.project.as_str()){
+        Some(project_id) => {
+            // Instance of API wrapper
+            let toggl_api = TogglApiWrapper::new();
+            let time_entry: TimeEntryRequest = create_time_entry(project_id, args.duration, &args.description);
+            let result = toggl_api.add_time_entry(time_entry).await;
+        },
+        None => eprintln!("No {:?} project exist.", args.project.as_str()),
+    };
 
-    let toggl_api = TogglApiWrapper::new();
+    Ok(())  
+}
 
-    // Get information on current user?
-    let response = toggl_api.get_user_info().await?;
-
-    println!("{:#?}", response);
-
+fn create_time_entry(project_id: &i32, duration: i32, description: &str) -> TimeEntryRequest {
     // Create an instance of the TimeEntry struct with optional fields set to None
     let time_entry = TimeEntryRequest {
         billable: None,
@@ -76,7 +88,7 @@ async fn main() -> Result<(), reqwest::Error> {
         duration: -1,
         duronly: None,
         pid: None,
-        project_id: None,
+        project_id: Some(project_id.to_owned()),
         start: "2024-01-16T06:00:00Z".to_string(),
         start_date: None,
         stop: None,
@@ -91,8 +103,5 @@ async fn main() -> Result<(), reqwest::Error> {
         workspace_id: 1127770,
     };
 
-    let result = toggl_api.add_time_entry(time_entry).await;
-    println!("{:#?}", result);
-
-    Ok(())  
+    time_entry
 }
