@@ -91,18 +91,6 @@ impl TogglApiWrapper {
         TogglApiWrapper { client }
     }
 
-    pub async fn get_user_info(&self) -> Result<Person, reqwest::Error> {
-        let response: Person = self.client.get(config::TOGGL_URL_ME)
-        .basic_auth(config::API_KEY, Some("api_token"))
-        .header(CONTENT_TYPE, "application/json")
-        .send()
-        .await?
-        .json()
-        .await?;
-
-        Ok(response)
-    }
-
     pub async fn add_time_entry(&self, time_entry: TimeEntryRequest) -> Result<TimeEntryResponse, reqwest::Error> {
         // Serialize the TimeEntryRequest instance to a JSON string
         let time_entry_json = serde_json::to_string(&time_entry);
