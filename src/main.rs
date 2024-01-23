@@ -3,6 +3,7 @@ extern crate serde_json;
 mod config;
 mod toggl_api;
 use std::collections::HashMap;
+use chrono::Utc;
 
 use serde::{Deserialize, Serialize};
 use toggl_api::{TogglApiWrapper, TimeEntryRequest};
@@ -71,7 +72,8 @@ async fn main() -> Result<(), reqwest::Error> {
             // Instance of API wrapper
             let toggl_api = TogglApiWrapper::new();
             let time_entry: TimeEntryRequest = create_time_entry(project_id, args.duration, &args.description);
-            let result = toggl_api.add_time_entry(time_entry).await;
+            // TODO: Error handling of add_time_entry api call
+            let _result = toggl_api.add_time_entry(time_entry).await;
         },
         None => eprintln!("No {:?} project exist.", args.project.as_str()),
     };
@@ -80,16 +82,18 @@ async fn main() -> Result<(), reqwest::Error> {
 }
 
 fn create_time_entry(project_id: &i32, duration: i32, description: &str) -> TimeEntryRequest {
+    let now = Utc::now();
+
     // Create an instance of the TimeEntry struct with optional fields set to None
     let time_entry = TimeEntryRequest {
         billable: None,
-        created_with: "Tobias toggl-cli".to_string(),
-        description: None,
-        duration: -1,
+        created_with: "toggl-cli".to_string(),
+        description: Some(description.to_owned()),
+        duration: duration * 60,
         duronly: None,
         pid: None,
         project_id: Some(project_id.to_owned()),
-        start: "2024-01-16T06:00:00Z".to_string(),
+        start: format!("{:?}", now).to_string(),
         start_date: None,
         stop: None,
         tag_action: None,
