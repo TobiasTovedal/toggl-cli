@@ -2,7 +2,7 @@ extern crate tokio;
 extern crate serde_json;
 mod config;
 mod toggl_api;
-use std::{collections::HashMap};
+use std::collections::HashMap;
 use chrono::Utc;
 
 use serde::{Deserialize, Serialize};
@@ -58,7 +58,7 @@ struct TimeEntryResponse {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), reqwest::Error> {
+async fn main() {
     // Parse input arguments
     let args = Cli::parse();
 
@@ -71,22 +71,20 @@ async fn main() -> Result<(), reqwest::Error> {
         Some(project_id) => {
             // Instance of API wrapper
             let toggl_api = TogglApiWrapper::new();
+            // Create time entry object
             let time_entry: TimeEntryRequest = create_time_entry(project_id, args.duration, &args.description);
-            // TODO: Error handling of add_time_entry api call
-            // let _result = toggl_api.add_time_entry(time_entry).await;
+            // Try to add time entry
             match toggl_api.add_time_entry(time_entry).await {
                 Ok(_result) => {
                     println!("Successfully added time entry")
                 }, 
                 Err(_error) => {
-                    eprintln!("Issue adding time entry. No time entry added.");
+                    eprintln!("Error adding time entry. No time entry added. {:?}", _error);
                 }
             };
         },
         None => eprintln!("No {:?} project exist.", args.project.as_str()),
     };
-
-    Ok(())  
 }
 
 fn create_time_entry(project_id: &i32, duration: i32, description: &str) -> TimeEntryRequest {
