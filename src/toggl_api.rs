@@ -1,6 +1,7 @@
 use reqwest::{header::CONTENT_TYPE, Client};
 use serde::{Deserialize, Serialize};
 use crate::config;
+use std::env;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Person {
@@ -92,12 +93,15 @@ impl TogglApiWrapper {
     }
 
     pub async fn add_time_entry(&self, time_entry: TimeEntryRequest) -> Result<TimeEntryResponse, reqwest::Error> {
+        // Check if Toggl Api Key is set as environment variable
+        let api_key = env::var("TOGGL_API_KEY").expect("Error: TOGGL_API_KEY is not set.");
+
         // Serialize the TimeEntryRequest instance to a JSON string
         let time_entry_json = serde_json::to_string(&time_entry);
 
         let time_entry_response: TimeEntryResponse = self.client
             .post(config::TOGGL_URL_TIME_ENTRIES)
-            .basic_auth(config::API_KEY, Some("api_token"))
+            .basic_auth(api_key, Some("api_token"))
             .header(CONTENT_TYPE, "application/json")
             .body(time_entry_json.unwrap())
             .send()
