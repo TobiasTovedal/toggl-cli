@@ -84,7 +84,13 @@ async fn main() {
                 }
             };
         },
-        None => eprintln!("No {:?} project exist.", args.project.as_str()),
+        None => {
+            eprintln!("No {:?} project exist. Available projects are:", args.project.as_str());
+            // Print all available projects
+            for project_key in projects.keys() {
+                println!{"{}", project_key};
+            }
+        }
     };
 }
 
