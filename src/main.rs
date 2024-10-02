@@ -10,6 +10,7 @@ use toggl_api::{TogglApiWrapper, TimeEntryRequest};
 use clap::Parser;
 
 #[derive(Parser)]
+#[command(version, about)]
 struct Cli {
     project: String,
     duration: i32,
@@ -65,7 +66,7 @@ async fn main() {
     // Greate hashmap from array of projects and corresponding IDs
     let projects = HashMap::from(config::PROJECTS);
     
-    // TODO: make better use of the cargo crate
+    // TODO: make better use of the clap crate
     // If the project provided as argument exists, return it's id from hashmap
     match projects.get(args.project.as_str()){
         Some(project_id) => {
