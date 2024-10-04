@@ -77,15 +77,15 @@ async fn main() {
             // Try to add time entry
             match toggl_api.add_time_entry(time_entry).await {
                 Ok(_result) => {
-                    println!("Successfully added time entry")
+                    println!("\x1b[92mSuccessfully added time entry \x1b[0m")
                 }, 
                 Err(_error) => {
-                    eprintln!("Error adding time entry. No time entry added. {:?}", _error);
+                    eprintln!("\x1b[91mError adding time entry. No time entry added. {:?}\x1b[0m", _error);
                 }
             };
         },
         None => {
-            eprintln!("No {:?} project exist. Available projects are:", args.project.as_str());
+            eprintln!("\x1b[93mNo {:?} project exist. Available projects are: \x1b[0m", args.project.as_str());
             // Print all available projects
             for project_key in projects.keys() {
                 println!{"{}", project_key};
