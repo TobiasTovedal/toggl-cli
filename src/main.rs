@@ -80,7 +80,7 @@ async fn main() {
             add_time_entry(project, duration, description, projects).await;
         }
         Commands::Ls => {
-            println!("ls");
+            print_available_projects(projects);
         }
     }
 }
