@@ -105,12 +105,16 @@ async fn add_time_entry(project: &str, duration: &i32, description: &str, projec
         },
         None => {
             eprintln!("\x1b[93mNo {:?} project exist. Available projects are: \x1b[0m", project);
-            // Print all available projects
-            for project_key in projects.keys() {
-                println!{"{}", project_key};
-            }
+            print_available_projects(projects);
         }
     };
+}
+
+fn print_available_projects(projects: HashMap<&str, i32>) {
+    // Print all available projects
+    for project_key in projects.keys() {
+        println!{"{}", project_key};
+    }
 }
 
 fn create_time_entry(project_id: &i32, duration: &i32, description: &str) -> TimeEntryRequest {
