@@ -7,14 +7,23 @@ use chrono::Utc;
 
 use serde::{Deserialize, Serialize};
 use toggl_api::{TogglApiWrapper, TimeEntryRequest};
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(version, about)]
 struct Cli {
-    project: String,
-    duration: i32,
-    description: String,
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Add {
+        project: String,
+        duration: i32,
+        description: String,
+    },
+    Ls,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -66,35 +75,46 @@ async fn main() {
     // Greate hashmap from array of projects and corresponding IDs
     let projects = HashMap::from(config::PROJECTS);
     
-    // TODO: make better use of the clap crate
-    // If the project provided as argument exists, return it's id from hashmap
-    match projects.get(args.project.as_str()){
-        Some(project_id) => {
-            // Instance of API wrapper
-            let toggl_api = TogglApiWrapper::new();
-            // Create time entry object
-            let time_entry: TimeEntryRequest = create_time_entry(project_id, args.duration, &args.description);
-            // Try to add time entry
-            match toggl_api.add_time_entry(time_entry).await {
-                Ok(_result) => {
-                    println!("\x1b[92mSuccessfully added time entry \x1b[0m")
-                }, 
-                Err(_error) => {
-                    eprintln!("\x1b[91mError adding time entry. No time entry added. {:?}\x1b[0m", _error);
+    match &args.command {
+        Commands::Add { project, duration, description } => {
+            // If the project provided as argument exists, return it's id from hashmap
+            match projects.get(project.as_str()){
+                Some(project_id) => {
+                    // Instance of API wrapper
+                    let toggl_api = TogglApiWrapper::new();
+                    // Create time entry object
+                    let time_entry: TimeEntryRequest = create_time_entry(project_id, duration, description);
+                    // Try to add time entry
+                    match toggl_api.add_time_entry(time_entry).await {
+                        Ok(_result) => {
+                            println!("\x1b[92mSuccessfully added time entry \x1b[0m")
+                        }, 
+                        Err(_error) => {
+                            eprintln!("\x1b[91mError adding time entry. No time entry added. {:?}\x1b[0m", _error);
+                        }
+                    };
+                },
+                None => {
+                    eprintln!("\x1b[93mNo {:?} project exist. Available projects are: \x1b[0m", project.as_str());
+                    // Print all available projects
+                    for project_key in projects.keys() {
+                        println!{"{}", project_key};
+                    }
                 }
             };
-        },
-        None => {
-            eprintln!("\x1b[93mNo {:?} project exist. Available projects are: \x1b[0m", args.project.as_str());
-            // Print all available projects
-            for project_key in projects.keys() {
-                println!{"{}", project_key};
-            }
         }
-    };
+        Commands::Ls => {
+            println!("ls");
+        }
+    }
+
+    
+    
+    
 }
 
-fn create_time_entry(project_id: &i32, duration: i32, description: &str) -> TimeEntryRequest {
+
+fn create_time_entry(project_id: &i32, duration: &i32, description: &str) -> TimeEntryRequest {
     let now = Utc::now();
 
     // Create an instance of the TimeEntry struct with optional fields set to None
@@ -102,7 +122,7 @@ fn create_time_entry(project_id: &i32, duration: i32, description: &str) -> Time
         billable: None,
         created_with: "toggl-cli".to_string(),
         description: Some(description.to_owned()),
-        duration: duration * 60,
+        duration: duration * 60, // Kanske behöver vara owned? Varför idk?
         duronly: None,
         pid: None,
         project_id: Some(project_id.to_owned()),
