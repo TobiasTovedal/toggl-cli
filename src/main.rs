@@ -77,42 +77,41 @@ async fn main() {
     
     match &args.command {
         Commands::Add { project, duration, description } => {
-            // If the project provided as argument exists, return it's id from hashmap
-            match projects.get(project.as_str()){
-                Some(project_id) => {
-                    // Instance of API wrapper
-                    let toggl_api = TogglApiWrapper::new();
-                    // Create time entry object
-                    let time_entry: TimeEntryRequest = create_time_entry(project_id, duration, description);
-                    // Try to add time entry
-                    match toggl_api.add_time_entry(time_entry).await {
-                        Ok(_result) => {
-                            println!("\x1b[92mSuccessfully added time entry \x1b[0m")
-                        }, 
-                        Err(_error) => {
-                            eprintln!("\x1b[91mError adding time entry. No time entry added. {:?}\x1b[0m", _error);
-                        }
-                    };
-                },
-                None => {
-                    eprintln!("\x1b[93mNo {:?} project exist. Available projects are: \x1b[0m", project.as_str());
-                    // Print all available projects
-                    for project_key in projects.keys() {
-                        println!{"{}", project_key};
-                    }
-                }
-            };
+            add_time_entry(project, duration, description, projects).await;
         }
         Commands::Ls => {
             println!("ls");
         }
     }
-
-    
-    
-    
 }
 
+async fn add_time_entry(project: &str, duration: &i32, description: &str, projects: HashMap<&str, i32>) {
+    // If the project provided as argument exists, return it's id from hashmap
+    match projects.get(project){
+        Some(project_id) => {
+            // Instance of API wrapper
+            let toggl_api = TogglApiWrapper::new();
+            // Create time entry object
+            let time_entry: TimeEntryRequest = create_time_entry(project_id, duration, description);
+            // Try to add time entry
+            match toggl_api.add_time_entry(time_entry).await {
+                Ok(_result) => {
+                    println!("\x1b[92mSuccessfully added time entry \x1b[0m")
+                }, 
+                Err(_error) => {
+                    eprintln!("\x1b[91mError adding time entry. No time entry added. {:?}\x1b[0m", _error);
+                }
+            };
+        },
+        None => {
+            eprintln!("\x1b[93mNo {:?} project exist. Available projects are: \x1b[0m", project);
+            // Print all available projects
+            for project_key in projects.keys() {
+                println!{"{}", project_key};
+            }
+        }
+    };
+}
 
 fn create_time_entry(project_id: &i32, duration: &i32, description: &str) -> TimeEntryRequest {
     let now = Utc::now();
