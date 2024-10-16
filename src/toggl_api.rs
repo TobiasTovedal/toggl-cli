@@ -3,12 +3,6 @@ use serde::{Deserialize, Serialize};
 use crate::config;
 use std::env;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Person {
-    email: String,
-    api_token: String,
-}
-
 // Placeholder struct for return variable from POST time entry
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TimeEntryResponse {

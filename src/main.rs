@@ -5,7 +5,6 @@ mod toggl_api;
 use std::collections::HashMap;
 use chrono::Utc;
 
-use serde::{Deserialize, Serialize};
 use toggl_api::{TogglApiWrapper, TimeEntryRequest};
 use clap::{Parser, Subcommand};
 
@@ -24,12 +23,6 @@ enum Commands {
         description: String,
     },
     Ls,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Person {
-    email: String,
-    api_token: String,
 }
 
 #[tokio::main]
