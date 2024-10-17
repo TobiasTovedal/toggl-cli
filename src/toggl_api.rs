@@ -88,7 +88,7 @@ impl TogglApiWrapper {
 
     pub async fn add_time_entry(&self, time_entry: TimeEntryRequest) -> Result<TimeEntryResponse, reqwest::Error> {
         // Check if Toggl Api Key is set as environment variable
-        let api_key = env::var("TOGGL_API_KEY").expect("Error: TOGGL_API_KEY is not set.");
+        let api_key = env::var("TOGGL_API_KEY").expect("\x1b[91mError: TOGGL_API_KEY is not set.\x1b[0m");
 
         // Serialize the TimeEntryRequest instance to a JSON string
         let time_entry_json = serde_json::to_string(&time_entry);
