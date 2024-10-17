@@ -53,11 +53,11 @@ async fn add_time_entry(project: &str, duration: &i32, description: &str, projec
             let time_entry: TimeEntryRequest = create_time_entry(project_id, duration, description);
             // Try to add time entry
             match toggl_api.add_time_entry(time_entry).await {
-                Ok(_result) => {
+                Ok(_) => {
                     println!("\x1b[92mSuccessfully added time entry \x1b[0m")
                 }, 
-                Err(_error) => {
-                    eprintln!("\x1b[91mError adding time entry. No time entry added. {:?}\x1b[0m", _error);
+                Err(error) => {
+                    eprintln!("\x1b[91mError adding time entry. No time entry added. {:?}\x1b[0m", error);
                 }
             };
         },
